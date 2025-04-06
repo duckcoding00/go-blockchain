@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"sync"
+	"time"
 
 	"github.com/duckcoding00/go-blockchain/blockchain"
 	"github.com/duckcoding00/go-blockchain/constants"
@@ -12,15 +14,25 @@ func init() {
 }
 
 func main() {
-	block := blockchain.NewBlock("0x0", 0)
-	log.Println(block.ToJson())
-	log.Println("Hash Block", block.Hash())
+	var wg sync.WaitGroup
 
-	transaction := blockchain.NewTransaction("0x1", "0x2", 14, []byte{})
-	log.Println(transaction.ToJson())
+	genesisBlock := blockchain.NewBlock("0x0", 0)
+	//transaction := blockchain.NewTransaction("0x1", "0x2", 100, []byte{})
+	blockchain := blockchain.NewBlockchain(*genesisBlock)
 
-	genBlock := block
-	genBlock.Transactions = append(genBlock.Transactions, transaction)
-	blockchain := blockchain.NewBlockchain(*genBlock)
 	log.Println(blockchain.ToJson())
+	log.Print("starting mining...", "\n\n")
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		blockchain.PoW("bob")
+	}()
+
+	// time.Sleep(2 * time.Second)
+	// blockchain.AddTXtoTXPool(*transaction)
+
+	time.Sleep(3 * time.Second)
+
+	wg.Wait()
 }
