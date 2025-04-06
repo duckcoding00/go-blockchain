@@ -14,12 +14,24 @@ type BlockchainStruct struct {
 }
 
 func NewBlockchain(genBlock Block) *BlockchainStruct {
-	bs := new(BlockchainStruct)
-	bs.TransactionPool = []*Transaction{}
-	bs.Blocks = []*Block{}
-	bs.Blocks = append(bs.Blocks, &genBlock)
+	exists, _ := Exists()
 
-	return bs
+	if exists {
+		blockchainData, err := Get()
+		if err != nil {
+			panic(err.Error())
+		}
+		return blockchainData
+	} else {
+		bs := new(BlockchainStruct)
+		bs.TransactionPool = []*Transaction{}
+		bs.Blocks = []*Block{}
+		bs.Blocks = append(bs.Blocks, &genBlock)
+		if err := Put(*bs); err != nil {
+			panic(err.Error())
+		}
+		return bs
+	}
 }
 
 func (bs BlockchainStruct) ToJson() string {
@@ -33,6 +45,11 @@ func (bs BlockchainStruct) ToJson() string {
 
 func (bs *BlockchainStruct) AddTXtoTXPool(tx Transaction) {
 	bs.TransactionPool = append(bs.TransactionPool, &tx)
+
+	// save
+	if err := Put(*bs); err != nil {
+		panic(err.Error())
+	}
 }
 
 func (bs *BlockchainStruct) AddBlock(b *Block) {
@@ -51,6 +68,11 @@ func (bs *BlockchainStruct) AddBlock(b *Block) {
 	bs.TransactionPool = newTransactionPool
 
 	bs.Blocks = append(bs.Blocks, b)
+
+	// save
+	if err := Put(*bs); err != nil {
+		panic(err.Error())
+	}
 }
 
 // implementing power of work algorithm

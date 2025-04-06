@@ -10,4 +10,6 @@ const (
 	Mining_Reward      = 1000 * Decimal
 	Currency_Name      = "luc"
 	BlockChain_Address = "Luckey_Faucet"
+	Leveldb_Path       = "storage/leveldb"
+	Blockchain_key     = "leveldb_key"
 )
